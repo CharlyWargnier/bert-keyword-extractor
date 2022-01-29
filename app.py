@@ -5,10 +5,6 @@ from keybert import KeyBERT
 
 # For Flair (Keybert)
 from flair.embeddings import TransformerDocumentEmbeddings
-
-# roberta = TransformerDocumentEmbeddings("roberta-base")
-
-# For table formatting
 import seaborn as sns
 
 # For download buttons
@@ -16,14 +12,13 @@ from functionforDownloadButtons import download_button
 import os
 import json
 
-# region format
-
+# set page title and icon
 st.set_page_config(
     page_title="BERT Keyword Extractor",
     page_icon="🎈",
 )
 
-
+# set app layout width
 def _max_width_():
     max_width_str = f"max-width: 1400px;"
     st.markdown(
@@ -71,41 +66,6 @@ with st.expander("ℹ️ - About this app", expanded=True):
 
     st.markdown("")
 
-
-# with st.expander(" Todos", expanded=True):
-#
-#     st.write(
-#         """
-# -   Check text and formatting in tooltips
-#
-# 	    """
-#     )
-#
-#     st.markdown("")
-#
-# st.markdown("")
-#
-# with st.expander("📝 - Done ", expanded=True):
-#     st.write(
-#         """
-#     - [Crash] Keep crashing on S4, issue with DistilBERT model
-#     - Do more testing
-#     - [Formatting] Add text about app - It's a UI for KeyBERT
-#     - Add placeholders at the top
-#     - [Formatting] Change logo - add  "a UI for KeyBERT"
-#     - [Formatting] Change page title if my name of the app is changed
-#     - Add tooltips to all fields
-#     - Add max 500 words
-#     - Add example for Ngram in Ngram tooltip
-#     - Check default settings in screenshot
-#     - change default keyword to 10
-#     - REMOVED - DOESN'T WORK - Add "candidate" argument. candidates: Candidate keywords/keyphrases to use instead of extracting them from the document(s). https://github.com/MaartenGr/KeyBERT/blob/#eb6d0865c958a474f3554518539c7a37dbd9856b/keybert/model.py#L78
-#
-#     """
-#     )
-#
-#     st.markdown("")
-
 with st.expander("🔆 Coming soon!", expanded=False):
 
     st.write(
@@ -127,47 +87,16 @@ st.markdown("## **📌 Paste document **")
 
 with st.form(key="my_form"):
 
-    # #region cache
-    #
-    # ###################
-    #
-    # @st.cache(allow_output_mutation=True)
-    # def load_model():
-    #     return Summarizer()
-    #
-    # ###################
-    #
-    # import streamlit as st
-    # import torch
-    #
-    # # Load the model (only executed once!)
-    # @st.cache
-    # def load_model():
-    #     return torch.load("path/to/model.pt")
-    #
-    # model = load_model()
-    #
-    # # Perform a prediction.
-    # question = st.text_input("What's your question?")
-    # answer = model.predict(question)
-    # st.write("Predicted answer:", answer)
-
-    ###################
-
-    # endregion cache
-
     ce, c1, ce, c2, c3 = st.columns([0.07, 1, 0.07, 5, 0.07])
     with c1:
         # Model type
         ModelType = st.radio(
             "Choose your model",
             ["DistilBERT (Default)", "Flair"],
-            # ["Flair", "DistilBERT (Default)", "Microsoft MiniLM"],
             help="At present, you can choose between 2 models (Flair or DistilBERT) to embed your text. More to come!",
         )
 
         if ModelType == "Default (DistilBERT)":
-            # kw_model = KeyBERT(model=roberta)
 
             @st.cache(allow_output_mutation=True)
             def load_model():
@@ -175,18 +104,8 @@ with st.form(key="my_form"):
 
             kw_model = load_model()
 
-        # elif ModelType == "Microsoft MiniLM":
-        #
-        #    @st.cache(allow_output_mutation=True)
-        #    def load_model():
-        #        return KeyBERT(model="paraphrase-MiniLM-L6-v2")
-        #
-        #    kw_model = load_model()
-        #
-        #    # kw_model = KeyBERT(model='paraphrase-MiniLM-L6-v2')
-
         else:
-            # kw_model = KeyBERT("distilbert-base-nli-mean-tokens")
+
             @st.cache(allow_output_mutation=True)
             def load_model():
                 return KeyBERT("distilbert-base-nli-mean-tokens")
@@ -209,7 +128,6 @@ with st.form(key="my_form"):
 *Keyphrase_ngram_range* sets the length of the resulting keywords/keyphrases.
 
 To extract keyphrases, simply set *keyphrase_ngram_range* to (1, 2) or higher depending on the number of words you would like in the resulting keyphrases.""",
-            # help="Minimum value for the keyphrase_ngram_range. keyphrase_ngram_range sets the length of the resulting keywords/keyphrases. To extract keyphrases, simply set keyphrase_ngram_range to (1, # 2) or higher depending on the number of words you would like in the resulting keyphrases.",
         )
 
         max_Ngrams = st.number_input(
@@ -256,14 +174,10 @@ Note that the *Keyword diversity* slider only works if the *MMR* checkbox is tic
 
         MAX_WORDS = 500
 
-        # total no of words
         import re
 
         res = len(re.findall(r"\w+", doc))
-        # st.write(str(res))
-
         if res > MAX_WORDS:
-            # if len(doc) > MAX_WORDS:
             st.warning(
                 "⚠️ Your text contains "
                 + str(res)
@@ -298,13 +212,8 @@ keywords = kw_model.extract_keywords(
     use_mmr=mmr,
     stop_words=StopWords,
     top_n=top_N,
-    # highlight=True,
     diversity=Diversity,
-    # candidates=["supervised"],
 )
-
-
-# st.markdown("---")
 
 st.markdown("## **🎈 Check & download results **")
 
@@ -319,12 +228,7 @@ with c2:
 with c3:
     CSVButton2 = download_button(keywords, "Data.json", "🎁 Download (.json)")
 
-# keywords
-# st.write(type(keywords))
-
 st.header("")
-
-# st.markdown("## **📃 Paste document **")
 
 df = (
     DataFrame(keywords, columns=["Keyword/Keyphrase", "Relevancy"])
@@ -332,11 +236,10 @@ df = (
     .reset_index(drop=True)
 )
 
-# cmGreen = sns.light_palette("green", as_cmap=True)
-
 df.index += 1
 
-# Add styling
+# Add Styling to the table columns and rows
+
 cmGreen = sns.light_palette("green", as_cmap=True)
 cmRed = sns.light_palette("red", as_cmap=True)
 df = df.style.background_gradient(
